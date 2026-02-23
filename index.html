@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text Summarizer</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+
+            background-image: url("bookshelf.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            backdrop-filter: blur(3px);
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #222;
+            font-size: 32px;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-top: 8px;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4a76fd;
+            box-shadow: 0 0 5px #4a76fd;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #4a76fd;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #325cf0;
+        }
+
+        .summary-box {
+            margin-top: 25px;
+            background: #f5f7ff;
+            padding: 18px;
+            border-left: 5px solid #4a76fd;
+            border-radius: 8px;
+            display: none;
+            white-space: pre-wrap;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>AI Text Summarizer</h1>
+
+        <label>Enter Text:</label>
+        <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+
+        <div class="controls">
+            <div>
+                <label style="font-weight: bold; font-size: 18px;">
+                    Mode: Percentage (%)
+                </label>
+            </div>
+
+            <div>
+                <label>Value: </label>
+                <input type="number" id="value" value="5" />
+            </div>
+
+            <button onclick="summarizeText()">Generate Summary</button>
+        </div>
+
+        <div class="summary-box" id="summary"></div>
+    </div>
+
+<script>
+async function summarizeText() {
+    const text = document.getElementById("inputText").value;
+    const value = document.getElementById("value").value;
+    const summaryBox = document.getElementById("summary");
+
+    if (!text.trim()) {
+        alert("Please enter some text first.");
+        return;
+    }
+
+    summaryBox.style.display = "block";
+    summaryBox.innerHTML = "Generating summary...";
+
+    try {
+        const response = await fetch("http://localhost:5000/api/summarize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, mode: "percent", value })
+        });
+
+        const data = await response.json();
+        summaryBox.innerHTML = data.ok ? data.summary : "Error: " + data.error;
+
+    } catch (err) {
+        summaryBox.innerHTML = "Failed to connect to backend.";
+    }
+}
+</script>
+
+</body>
+</html>
